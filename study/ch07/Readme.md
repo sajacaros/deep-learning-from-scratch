@@ -99,6 +99,7 @@
             self.b = b
             self.stride = stride
             self.pad = pad
+  
         def forward(self, x):
             FN, C ,FH, FW = self.W.shape
             N, C, H, W = x.shape
@@ -110,14 +111,42 @@
             out = np.dot(col, col_W) + self.b
   
             out = out.reshape(N, out_h, out_w, -1).transpose(0, 3, 1, 2)
+            //               (N, H,     W,     C )   ->      (N, C, H, W)
             return out
     ```
     ![transpose](../images/fig_7-20.png)
 ##### 7.4.4 풀링 계층 구현하기
+* 풀링 적용 영역은 채널마다 독립적
     ![pooling 2-2](../images/fig_7-21.png)
+* 풀링 계층 구현 흐름
     ![flow pooling](../images/fig_7-22.png)
-
+    ```
+    class Pooling:
+        def __init__(self, pool_h, pool_w, stride=1, pad=0):
+            self.pool_h = pool_h
+            self.pool_w = pool_w
+            self.stride = stride
+            self.pad = pad
+  
+        def forward(self, x):
+            N, C, H, W = x.shape
+            out_h = int(1 + (H - self.pool_h) / self.stride)
+            out_w = int(1 + (W - self.pool_w) / self.stride)
+      
+            // 입력 데이터를 전개      
+            col = im2col(x, self.pool_h, self.pool_w, self.stride, self.pad)
+            col = col.reshape(01, self.pool_h*self.pool_w)
+      
+            // 행별 최대값 구함      
+            out = np.max(col, axis=1)
+  
+            // 적절한 모양으로 성형
+            out = out.reshape(N, out_h, out_w, C).transpose(0, 3, 1, 2)
+            return out
+    ```
+   
 #### 7.5 CNN 구현하기
+* 단순한 CNN 네트워크 구성
     ![CNN network](../images/fig_7-23.png)
 
 #### 7.6 CNN 시각화하기
