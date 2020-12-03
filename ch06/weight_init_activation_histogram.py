@@ -18,9 +18,11 @@ input_data = np.random.randn(1000, 100)  # 1000개의 데이터
 node_num = 100  # 각 은닉층의 노드(뉴런) 수
 hidden_layer_size = 5  # 은닉층이 5개
 activations = {}  # 이곳에 활성화 결과를 저장
+wx = {}  # 이곳에 활성화 결과를 저장
 
 x = input_data
 
+count = 0
 for i in range(hidden_layer_size):
     if i != 0:
         x = activations[i-1]
@@ -33,7 +35,12 @@ for i in range(hidden_layer_size):
 
 
     a = np.dot(x, w)
-
+    wx[i] = a
+    if i==1:
+        for aa in a:
+            for aaa in aa:
+                if (-2 < aaa) and (aaa < 2):
+                    count += 1
 
     # 활성화 함수도 바꿔가며 실험해보자！
     z = sigmoid(a)
@@ -43,11 +50,19 @@ for i in range(hidden_layer_size):
     activations[i] = z
 
 # 히스토그램 그리기
-for i, a in activations.items():
-    plt.subplot(1, len(activations), i+1)
+# for i, a in activations.items():
+#     plt.subplot(1, len(activations), i+1)
+#     plt.title(str(i+1) + "-layer")
+#     if i != 0: plt.yticks([], [])
+#     # plt.xlim(0.1, 1)
+#     # plt.ylim(0, 7000)
+#     plt.hist(a.flatten(), 30, range=(0,1))
+print(count)
+for i, a in wx.items():
+    plt.subplot(1, len(wx), i+1)
     plt.title(str(i+1) + "-layer")
     if i != 0: plt.yticks([], [])
     # plt.xlim(0.1, 1)
     # plt.ylim(0, 7000)
-    plt.hist(a.flatten(), 30, range=(0,1))
+    plt.hist(a.flatten(), 30, range=(-50,50))
 plt.show()
